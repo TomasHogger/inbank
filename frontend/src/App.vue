@@ -13,13 +13,14 @@
 
     <p v-show="loanResponse">Allowed: {{ loanResponse?.approved }}</p>
     <p v-show="loanResponse?.maxAmount">Amount: {{ loanResponse?.maxAmount }}</p>
-    <p v-show="error">Error: {{ error?.message }}</p>
+    <p v-show="error">Error: {{ error?.response?.data }}</p>
   </form>
 </template>
 
 <script lang="ts">
 import {checkLoanAvailability} from "@api";
 import type {LoadRequest, LoadResponse} from "@/dto";
+import type {AxiosError} from "axios";
 
 export default {
   data() {
@@ -30,7 +31,7 @@ export default {
         monthPeriod: 12
       } as LoadRequest,
       loanResponse: null as null | LoadResponse,
-      error: null as null | Error
+      error: null as null | AxiosError
     };
   },
   methods: {
@@ -39,7 +40,7 @@ export default {
       this.loanResponse = null;
       checkLoanAvailability(this.loanRequest)
           .then((resp: LoadResponse) => this.loanResponse = resp)
-          .catch((error: Error) => this.error = error)
+          .catch((error: AxiosError) => this.error = error)
     }
   }
 };

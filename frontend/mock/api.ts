@@ -1,4 +1,5 @@
 import {LoadRequest, LoadResponse} from "../src/dto";
+import {AxiosError, AxiosResponse} from "axios";
 
 export async function checkLoanAvailability(loanRequest: LoadRequest): Promise<LoadResponse> {
     switch (loanRequest.personalCode) {
@@ -23,6 +24,14 @@ export async function checkLoanAvailability(loanRequest: LoadRequest): Promise<L
                 maxAmount: 10000
             }
         default:
-            throw new Error("Unknown account")
+            throw new AxiosError(
+                "Unknown account",
+                "400",
+                null,
+                null,
+                {
+                    data: "Unknown account"
+                } as AxiosResponse
+            )
     }
 }
