@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  build_frontend:
+    image: node:20.0-slim
+    user: ${UID}
+    volumes:
+      - ./frontend/:/project/
+    working_dir: /project/
+    command: /bin/sh -c "
+      npm install
+      && npm run build
+      "
+
+  build_backend:
+    image: maven:3.9-eclipse-temurin-20-alpine
+    user: ${UID}
+    volumes:
+      - ./:/project/
+      - ./m2/:/.m2
+    working_dir: /project/
+    command: mvn -Dmaven.repo.local=/.m2/repository clean package -DskipTests
