@@ -7,6 +7,7 @@ import com.example.inbank.loan.exception.InvalidMonthPeriodException
 import com.example.inbank.user_account.service.UserAccountService
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Service
 class LoanServiceImpl(
@@ -25,7 +26,11 @@ class LoanServiceImpl(
         }
 
         val modifierScore = BigDecimal(loanModifierService.getModifierScore(loanRequest.personalCode))
-        val loanScore = (modifierScore.divide(BigDecimal(loanRequest.loanAmount))) * BigDecimal(loanRequest.monthPeriod)
+        val loanScore = (modifierScore.divide(
+            BigDecimal(loanRequest.loanAmount),
+            2,
+            RoundingMode.HALF_UP
+        )) * BigDecimal(loanRequest.monthPeriod)
         var loanMaxAmount: Double? = (modifierScore * BigDecimal(loanRequest.monthPeriod)).toDouble()
 
         if (loanMaxAmount!! > 10_000.0) {
