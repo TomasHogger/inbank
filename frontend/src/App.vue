@@ -7,7 +7,7 @@
     <input id="loanAmount" v-model="loanRequest.loanAmount" max="10000" min="2000" required type="number"><br>
 
     <label for="monthPeriod">Months:</label>
-    <input id="name" v-model="loanRequest.monthPeriod" max="60" min="12" required type="number"><br>
+    <input id="monthPeriod" v-model="loanRequest.monthPeriod" max="60" min="12" required type="number"><br>
 
     <button type="submit">Check loan</button>
 
