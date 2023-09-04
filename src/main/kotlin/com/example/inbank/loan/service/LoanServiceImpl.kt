@@ -9,15 +9,21 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
 
+const val MIN_LOAN_AMOUNT = 2_000.0
+const val MAX_LOAN_AMOUNT = 10_000.0
+const val MIN_MONTH_AMOUNT = 12
+const val MAX_MONTH_AMOUNT = 60
+
 @Service
 class LoanServiceImpl(
     private val userAccountService: UserAccountService, private val loanModifierService: LoanModifierService
 ) : LoanService {
+
     override fun checkLoanAvailability(loanRequest: LoanRequest): LoanResponse {
-        if (loanRequest.loanAmount < 2_000 || loanRequest.loanAmount > 10_000) {
+        if (loanRequest.loanAmount < MIN_LOAN_AMOUNT || loanRequest.loanAmount > MAX_LOAN_AMOUNT) {
             throw InvalidLoanAmountException()
         }
-        if (loanRequest.monthPeriod < 12 || loanRequest.monthPeriod > 60) {
+        if (loanRequest.monthPeriod < MIN_MONTH_AMOUNT || loanRequest.monthPeriod > MAX_MONTH_AMOUNT) {
             throw InvalidMonthPeriodException()
         }
 
@@ -31,12 +37,13 @@ class LoanServiceImpl(
             2,
             RoundingMode.HALF_UP
         )) * BigDecimal(loanRequest.monthPeriod)
-        var loanMaxAmount: Double? = (modifierScore * BigDecimal(loanRequest.monthPeriod)).toDouble()
-
-        if (loanMaxAmount!! > 10_000.0) {
-            loanMaxAmount = 10_000.0
-        } else if (loanMaxAmount < 2_000.0) {
-            loanMaxAmount = null;
+        val loanMaxAmount = (modifierScore * BigDecimal(loanRequest.monthPeriod)).toDouble().let {
+            if (it > MAX_LOAN_AMOUNT) {
+                return@let MAX_LOAN_AMOUNT
+            } else if (it < MIN_LOAN_AMOUNT) {
+                return@let MIN_LOAN_AMOUNT
+            }
+            return@let it
         }
 
         return LoanResponse(loanScore >= BigDecimal.ONE, loanMaxAmount)
